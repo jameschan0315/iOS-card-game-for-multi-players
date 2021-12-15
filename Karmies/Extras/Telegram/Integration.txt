@@ -1,0 +1,92 @@
+----
+
+Prerequisites:
+
+1. Don't forget to enable Swift support
+
+Telegraph project -> Build Settings -> set Embedded Content Contains Swift Code to YES
+
+
+2. Add Karmies.framework to the project and add it as Embedded Binary too.
+
+Telegraph project -> General -> Embedded Binaries
+
+
+3. Add libGoogleAnalyticsServices and CoreData to Linked Framework and Libraries.
+Note: if you use CocoaPods as dependency manager you can just add GoogleAnalytics as dependency to Podfile.
+
+pod 'Google/Analytics', '~> 3.0.3'
+
+
+4. Add PSMAdKitSDKBundle.bundle to the project.
+
+
+----
+
+Integration:
+
+1. Init shared instance of KarmiesContext when app starts
+in AppDelegate.m - application:didFinishLaunchingWithOptions: (line 280)
+
+[KarmiesContext initSharedInstanceWithPublisherID:@"karmiegram"];
+
+
+2. Init the instance of KarmiesController, place keyboard toggle button on the view
+in TGModernConversationController.m - loadView (line 772)
+
+_karmiesController = [[KarmiesController alloc] initWithContext:[KarmiesContext sharedInstance] hostInputTextView:_inputTextPanel.inputField.internalTextView];
+_karmiesController.messageWasChangedHandler = ^(BOOL forced) {
+    __strong TGModernConversationController *strongSelf = weakSelf;
+    if (strongSelf != nil) {
+        if (forced) {
+            [strongSelf->_companion loadInitialState];
+        }
+        [strongSelf->_collectionView reloadData];
+    }
+};
+[KarmiesUtils placeButton:_karmiesController.keyboardToggleButton onLeftOfTextView:_inputTextPanel.inputField.internalTextView withPlaceholderView:_inputTextPanel.inputField.placeholderView inSuperview:_inputTextPanel.inputField];
+
+
+3. Replace sent message's text with the serialized
+in TGModernConversationInputTextPanel.m - sendButtonPressed (line 903)
+
+NSMutableString *text = [[NSMutableString alloc] initWithString:[[KarmiesContext sharedInstance] serializeMessageFromAttributedString:_inputField.internalTextView.attributedText]];
+
+
+4. Copy TGKarmiesModernTextViewModel .h and .m files to Telegram/Telegraph folder and then add them to the project
+
+
+5. Create TGKarmiesModernTextViewModel instance if the message contains Karmies links
+in TGTextMessageModernViewModel.m - initWithMessage:authorPeer:viaUser:context: (line 81)
+
+if ([[KarmiesContext sharedInstance] isSerializedMessage:_text]) {
+    _textModel = [[TGKarmiesModernTextViewModel alloc] initWithText:message.text outgoing:message.outgoing font:textFontForSize(TGGetMessageViewModelLayoutConstants()->textFontSize)];
+
+}
+else {
+    _textModel = [[TGModernTextViewModel alloc] initWithText:message.text font:textFontForSize(TGGetMessageViewModelLayoutConstants()->textFontSize)];
+}
+
+
+6. Add emoji tap handling in the chat messages
+in TGTextMessageModernViewModel.m - messageDoubleTapGesture: (line 206)
+
+if ([[KarmiesContext sharedInstance] isSerializedMessage:linkCandidate]) {
+    [[KarmiesContext sharedInstance] presentPreviewSecretMessageControllerForEmojiWithURL:[NSURL URLWithString:linkCandidate]];
+}
+else {
+    [_context.companionHandle requestAction:@"openLinkRequested" options:@{@"url": linkCandidate, @"mid": @(_mid)}];
+}
+
+
+----
+
+Known issues:
+
+
+1. Disappearing emoji
+
+To fix it you need modify
+TGStringUtils.mm - hasNonWhitespaceCharacters (line 1300)
+
+if (c != ' ' && c != '\n' && c != '\t')

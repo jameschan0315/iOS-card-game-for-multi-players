@@ -1,0 +1,69 @@
+Karmies.zip
+Karmies/Release-*
+
+*~.nib
+
+# Xcode Project
+**/*.xcodeproj/xcuserdata/
+**/*.xcworkspace/xcuserdata/
+**/*.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+**/*.xcworkspace/xcshareddata/*.xccheckout
+**/*.xcworkspace/xcshareddata/*.xcscmblueprint
+.idea/
+
+
+## Various settings
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+
+# Xcode Injection
+IOSInjectionProject/
+OSXInjectionProject/
+
+# Build
+build/
+DerivedData
+
+# CocoaPods
+Pods/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+fastlane/sign&cert
+
+# CSV
+*.orig
+.svn
+
+# Other
+*~
+.DS_Store
+.Trashes
+*.swp
+*.save
+._*
+*.bak
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+
+## Obj-C/Swift specific
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+node_modules
+
+## Playgrounds
+timeline.xctimeline
+playground.xcworkspace

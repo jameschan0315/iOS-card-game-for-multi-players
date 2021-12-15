@@ -1,0 +1,13 @@
+After creating the instance of KarmiesController class you can get keyboard toggle button as read-only property:
+
+UIButton* toggleButton = karmiesController.keyboardToggleButton;
+
+Then you can position it as the usual view:
+just add it as subview to the any view you want. It perfectly works with constraints too.
+
+If you want to place it right on the your UITextView you need to setup textContainerInset property of your UITextView:
+
+let textInsets = textView.textContainerInset
+textView.textContainerInset = UIEdgeInsets(top: textInsets.top, left: textInsets.left + toggleButton.bounds.size.width, bottom: textInsets.bottom, right: textInsets.right)
+
+Also there is the method KarmiesUtils.placeButton:onLeftOfTextView:withPlaceholderView:inSuperview that you can use for simple integration.
